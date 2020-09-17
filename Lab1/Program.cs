@@ -1,18 +1,16 @@
 ﻿using Npgsql;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Lab1
 {
     class Program
     {
-        public static List<object[]> GetResult(NpgsqlConnection connection, string select, string from, string where)
+        public static List<object[]> GetResult(NpgsqlConnection connection, string select, string from)
         {
-            var sqlStatement = string.Format("SELECT {0} FROM {1} WHERE {2}", select, from, where);
+            var sqlStatement = string.Format("SELECT {0} FROM {1}", select, from);
 
-            //var sqlCommand = new NpgsqlCommand(sqlStatement, connection);
             try
             { 
                 connection.Open();
@@ -44,7 +42,7 @@ namespace Lab1
 
         }
 
-        public static void printData(List<object[]> list)
+        public static void PrintData(List<object[]> list)
         {
             int count = 0;
             foreach (object[] element in list)
@@ -64,35 +62,36 @@ namespace Lab1
         {
             try
             {
-                NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder();
-
-                builder.ConnectionString = "Server=127.0.0.1;Port=5432;User Id=postgres;Password=123456;Database=public_utilities;";
-
-                using (NpgsqlConnection connection = new NpgsqlConnection(builder.ConnectionString))
+                NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder
                 {
-                    Console.WriteLine("\nБаза даних повинна містити інформацію:");
-                    Console.WriteLine("=========================================\n\n");
-                    Console.WriteLine("\n10 квартиронаймачів:\n");
-                    List<object[]> tenants = GetResult(connection, "*", "tenants", "true");
-                    printData(tenants);
+                    ConnectionString = "Server=127.0.0.1;Port=5432;User Id=postgres;Password=123456;Database=public_utilities;"
+                };
 
-                    Console.WriteLine("=========================================\n\n");
-                    Console.WriteLine("\n5 видів послуг. Вартість одних послуг повинна визначатись площею квартири, інших - к-стю осіб, що проживає:");
-                    List<object[]> services = GetResult(connection, "id_service, method, price, service", "services NATURAL JOIN payment_method", "true");
-                    printData(services);
+                using NpgsqlConnection connection = new NpgsqlConnection(builder.ConnectionString);
+                Console.WriteLine("\nБаза даних повинна містити інформацію:");
+                Console.WriteLine("=========================================\n\n");
+                Console.WriteLine("\n10 квартиронаймачів:\n");
+                List<object[]> tenants = GetResult(connection, "*", "tenants");
+                PrintData(tenants);
 
-                    Console.WriteLine("=========================================\n\n");
-                    Console.WriteLine("\nПередбачити, що кожен квариронаймач користується 3+ послугами:\n");
-                    List<object[]> tenants_service = GetResult(connection, "first_name||' '||father_name||' '||last_name, services.service", "payment NATURAL JOIN services NATURAL JOIN apartment NATURAL JOIN tenants", "true");
-                    printData(tenants_service);
+                Console.WriteLine("=========================================\n\n");
+                Console.WriteLine("\n5 видів послуг. Вартість одних послуг повинна визначатись площею квартири, інших - к-стю осіб, що проживає:");
+                List<object[]> services = GetResult(connection, "method, price, service", "services CROSS JOIN payment_method");
+                PrintData(services);
 
-                    Console.WriteLine("=========================================\n\n");
-                    Console.WriteLine("\nКвартири:\n");
-                    List<object[]> apartment = GetResult(connection, "*", "apartment", "true");
-                    printData(apartment);
+                Console.WriteLine("=========================================\n\n");
+                Console.WriteLine("\nПередбачити, що кожен квариронаймач користується 3+ послугами:\n(Запит виводить тих осіб які корист. 3+ послугами)\n");
+                List<object[]> tenants_service = GetResult(connection, "DISTINCT first_name||' '||father_name||' '||last_name, account_number", "payment  CROSS JOIN tenants WHERE(SELECT COUNT(payment.id) FROM payment WHERE tenants.apartment_id = payment.apartment_id) > 2");
+                PrintData(tenants_service);
+                Console.WriteLine("________________________________________\n\n");
+                Console.WriteLine("\nКвартиронаймач та кількість послуг якими він користується:\n");
+                tenants_service = GetResult(connection, "DISTINCT first_name||' '||father_name||' '||last_name, (SELECT COUNT(payment.id) FROM payment WHERE tenants.apartment_id = payment.apartment_id)", "payment  CROSS JOIN tenants");
+                PrintData(tenants_service);
 
-
-                }
+                Console.WriteLine("=========================================\n\n");
+                Console.WriteLine("\nКвартири:\n");
+                List<object[]> apartment = GetResult(connection, "*", "apartment");
+                PrintData(apartment);
             }
             catch (NpgsqlException e)
             {
