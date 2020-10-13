@@ -25,17 +25,23 @@ namespace Lab2
 
             Console.WriteLine("=========================================\n\n");
             Console.WriteLine("\nПередбачити, що кожен квариронаймач користується 3+ послугами:\n\n");
-            var query = from t in context.Tenants
+            /*var query = from t in context.Tenants
                                  where (from a in context.Apartment
                                         join p in context.Payment on a.Id equals p.ApartmentId
                                         where t.ApartmentId == p.ApartmentId
                                         select p.ApartmentId).Count() > 2
                                  select t;
-            var tenant_service = query.ToList();
-            foreach (Tenants t in tenant_service){
-                Console.WriteLine(t.ToString());
+            var tenant_service = query.ToList();*/
+            var tenant_service = context.Tenants
+                    .Join(context.Payment, tenants => tenants.ApartmentId, payment => payment.ApartmentId,
+                    (t, p) => new {IdTenent = t.Id, Name = t.FirstName, Surname = t.LastName, p.ApartmentId })
+                    .ToList()
+                    .GroupBy(table => new {table.IdTenent, table.Name, table.Surname })
+                    .Where(g => g.Count() >= 3 );
+            foreach (var t in tenant_service)
+            {
+                Console.WriteLine($"{t.Key.IdTenent}   {t.Key.Name}    {t.Key.Surname} " + $"Count: {t.Count()}");
             }
-           
 
             Console.WriteLine("=========================================\n\n");
             Console.WriteLine("\nКвартири:\n");
