@@ -1,0 +1,55 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+    var context = new WebApplication1.Models.PublicUtilitiesContext();
+    var tenant_service = context.Tenants
+                    .Join(context.Payment, tenants => tenants.ApartmentId, payment => payment.ApartmentId,
+                    (t, p) => new { IdTenent = t.Id, Name = t.FirstName, Surname = t.LastName, p.ApartmentId })
+                    .ToList()
+                    .GroupBy(table => new { table.IdTenent, table.Name, table.Surname })
+                    .Where(g => g.Count() >= 3);
+}
+
+<div class="text-center">
+    <h5 class="display-3">База даних</h5>
+    <p>Всі користувачі, які користуються більше ніж трьома послугами:</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    ID
+                </th>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Surname
+                </th>
+                <th>
+                    Count
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in tenant_service)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Key.IdTenent)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Key.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Key.Surname)
+                    </td>
+                    <!-- <td>
+                        //Html.DisplayFor(modelItem => item.Count())
+                    </td> -->
+                </tr>
+
+            }
+        </tbody>
+    </table>
+</div>
