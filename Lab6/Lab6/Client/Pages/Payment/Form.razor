@@ -1,0 +1,68 @@
+﻿@inject HttpClient client
+<EditForm Model="@payment" OnValidSubmit="@OnValidSubmit">
+    <DataAnnotationsValidator />
+    
+    <div class="form-group ">
+        <div>
+            <label>Service Id :</label>
+            <div>
+                <InputSelectNumber class="form-control"
+                                   @bind-Value="payment.ServiceId">
+                    <option value="0">--Select a apartment--</option>
+                    @foreach (var item in services)
+                    {
+                        @if (item.Id == payment.ServiceId)
+                        {
+                            <option selected value="@item.Id">@item.Service</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Id">@item.Service</option>
+                        }
+                    }
+                </InputSelectNumber>
+                <ValidationMessage For="@(() => payment.ServiceId)" />
+            </div>
+        </div>
+    </div>
+    <div class="form-group ">
+        <div>
+            <label>Apartment Id :</label>
+            <div>
+                <InputSelectNumber class="form-control"
+                                   @bind-Value="payment.ApartmentId">
+                    <option value="0">--Select a apartment--</option>
+                    @foreach (var item in apartments)
+                    {
+                        @if (item.Id == payment.ApartmentId)
+                        {
+                            <option selected value="@item.Id">@item.Address</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Id">@item.Address</option>
+                        }
+                    }
+                </InputSelectNumber>
+                <ValidationMessage For="@(() => payment.ApartmentId)" />
+            </div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success">
+        @ButtonText
+    </button>
+</EditForm>
+@code {
+    [Parameter] public Payment payment { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    private List<Services> services = new List<Services>();
+    private List<Apartment> apartments = new List<Apartment>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        apartments = await client.GetFromJsonAsync<List<Apartment>>("api/apartment");
+        services = await client.GetFromJsonAsync<List<Services>>("api/services");
+
+    }
+}

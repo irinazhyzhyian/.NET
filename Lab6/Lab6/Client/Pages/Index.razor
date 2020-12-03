@@ -1,0 +1,53 @@
+﻿@page "/"
+@inject HttpClient client
+@inject IJSRuntime js
+@using Lab6.Shared.Models
+
+
+<h3>Всі користувачі, які користуються більше ніж трьома послугами:</h3>
+
+@if (items == null)
+{
+    <text>Loading...</text>
+}
+else if (items.Count == 0)
+{
+    <text>No Records Found.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (var a in items)
+            {
+            <tr>
+                <td>@a.Id</td>
+                <td>@a.Name</td>
+                <td>@a.Surname</td>
+                <td>@a.Count</td>
+            </tr>
+            }
+
+        </tbody>
+    </table>
+}
+    @code{
+        List<TenantsAndPaymentsKey> items { get; set; }
+
+        protected override async Task OnInitializedAsync()
+        {
+            items = await client.GetFromJsonAsync< List<TenantsAndPaymentsKey>>("api/home");
+        }
+
+
+    }
+

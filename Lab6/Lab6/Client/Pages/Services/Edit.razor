@@ -1,0 +1,21 @@
+﻿@page "/services/edit/{servicesId:int}"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+<h3>Edit</h3>
+<Form ButtonText="Update" services="services"
+      OnValidSubmit="@EditServices" />
+@code {
+    [Parameter] public int servicesId { get; set; }
+    Services services = new Services();
+    protected async override Task OnParametersSetAsync()
+    {
+        services = await http.GetFromJsonAsync<Services>($"api/services/{servicesId}");
+    }
+    async Task EditServices()
+    {
+        await http.PutAsJsonAsync("api/services", services);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("services");
+    }
+}

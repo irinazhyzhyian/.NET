@@ -1,0 +1,14 @@
+﻿@page "/tenants/create"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+<h3>Create</h3>
+<Form ButtonText="Create Tenants" tenants="@tenants"
+      OnValidSubmit="@CreateTenants" />
+@code {
+    Tenants tenants = new Tenants();
+    async Task CreateTenants()
+    {
+        await http.PostAsJsonAsync("api/tenants", tenants);
+        uriHelper.NavigateTo("tenants");
+    }
+}

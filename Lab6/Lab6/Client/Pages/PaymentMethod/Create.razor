@@ -1,0 +1,14 @@
+﻿@page "/paymentmethod/create"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+<h3>Create</h3>
+<Form ButtonText="Create" paymentmethod="@paymentmethod"
+      OnValidSubmit="@CreatePaymentMethod" />
+@code {
+    PaymentMethod paymentmethod = new PaymentMethod();
+    async Task CreatePaymentMethod()
+    {
+        await http.PostAsJsonAsync("api/paymentmethod", paymentmethod);
+        uriHelper.NavigateTo("paymentmethod");
+    }
+}

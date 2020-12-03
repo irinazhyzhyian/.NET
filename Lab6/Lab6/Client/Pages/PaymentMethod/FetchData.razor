@@ -1,0 +1,58 @@
+﻿@page "/paymentmethod"
+@inject HttpClient client
+@inject IJSRuntime js
+<h3>Payment Methods</h3>
+<small>Add as many methods as you wish.</small>
+<div class="form-group">
+    <a class="btn btn-success" href="paymentmethod/create"><i class="oi oi-plus"></i> Create New</a>
+</div>
+<br>
+@if (paymentmethods == null)
+{
+    <text>Loading...</text>
+}
+else if (paymentmethods.Length == 0)
+{
+    <text>No Records Found.</text>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Method</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (PaymentMethod a in paymentmethods)
+            {
+                <tr>
+                    <td>@a.Id</td>
+                    <td>@a.Method</td>
+                    <td>
+                        <a class="btn btn-success" href="paymentmethod/edit/@a.Id">Edit</a>
+                        <button class="btn btn-danger" @onclick="@(() => Delete(a.Id))">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    PaymentMethod[] paymentmethods { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        paymentmethods = await client.GetFromJsonAsync<PaymentMethod[]>("api/paymentmethod");
+    }
+    async Task Delete(int paymentmethodId)
+    {
+        var a = paymentmethods.First(x => x.Id == paymentmethodId);
+        if (await js.InvokeAsync<bool>("confirm", $"Do you want to delete {a.Method}'s ({a.Id}) Record?"))
+        {
+            await client.DeleteAsync($"api/paymentmethod/{paymentmethodId}");
+            await OnInitializedAsync();
+        }
+    }
+}

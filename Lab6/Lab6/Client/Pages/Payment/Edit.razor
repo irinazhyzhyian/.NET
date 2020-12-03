@@ -1,0 +1,21 @@
+﻿@page "/payment/edit/{paymentId:int}"
+@inject HttpClient http
+@inject NavigationManager uriHelper
+@inject IJSRuntime js
+<h3>Edit</h3>
+<Form ButtonText="Update" payment="payment"
+      OnValidSubmit="@EditPayment" />
+@code {
+    [Parameter] public int paymentId { get; set; }
+    Payment payment = new Payment();
+    protected async override Task OnParametersSetAsync()
+    {
+        payment = await http.GetFromJsonAsync<Payment>($"api/payment/{paymentId}");
+    }
+    async Task EditPayment()
+    {
+        await http.PutAsJsonAsync("api/payment", payment);
+        await js.InvokeVoidAsync("alert", $"Updated Successfully!");
+        uriHelper.NavigateTo("payment");
+    }
+}
