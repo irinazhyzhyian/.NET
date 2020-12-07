@@ -4,6 +4,8 @@ import ApartmentList from './Apartment/ApartmentList';
 import TenantsList from './Tenants/TenantsList';  
 import ServicesList from './Services/ServicesList';
 import PaymentList from './Payment/PaymentList';
+import EditPaymentMethod from './PaymentMethod/EditPaymentMethod';
+import AddPaymentMethod from './PaymentMethod/AddPaymentMethod';
 import Home from './Home';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';  
 import './App.css';  
@@ -26,6 +28,8 @@ function App() {
           <Route exact path='/TenantsList' component={TenantsList} /> 
           <Route exact path='/ServicesList' component={ServicesList} />
           <Route exact path='/PaymentList' component={PaymentList} />
+          <Route path='/paymentmethod-edit/:id'  component={EditPaymentMethod}/>
+          <Route path='/AddPaymentMethod' component={AddPaymentMethod} />
         </Switch> 
     </Router>  
     </div>

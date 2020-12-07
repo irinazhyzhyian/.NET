@@ -38,13 +38,7 @@ export default class PaymentMethodList extends Component {
         <div>  
           <h4 align="center">Payment Methods List</h4> 
             <br></br>
-            <Router>
             <Link to={'/AddPaymentMethod'} className="nav-link">Add</Link>
-            <Switch>
-            <Route path='/AddPaymentMethod' component={AddPaymentMethod} />  
-            <Route path='/paymentmethod-edit/:id'  component={EditPaymentMethod}/>
-            </Switch>
-            </Router>
           <table className="table table-striped" style={{ marginTop: 10 }}>  
             <thead>  
               <tr>  
